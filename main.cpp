@@ -13,10 +13,10 @@ size_t write_to_string(void *ptr, size_t size, size_t nmemb, void *stream) {
     response->append((char *) ptr, total_size);
     return total_size;
 }
-int main() {
+int main(int argc, char** argv) {
   // Initialize CURL library
 	std::string ApiKey = "YOUR_API_KEY";
-	std::string header_string = "Authorization: Bearer " + ApiKey;
+	std::vector<std::string> header_string = { "Authorization: Bearer " + ApiKey,"max_tokens: 256"};
   CURL *curl = curl_easy_init();
   if (!curl) {
     std::cerr << "Error initializing CURL library" << std::endl;
@@ -28,19 +28,27 @@ int main() {
   curl_easy_setopt(curl, CURLOPT_POST, 1);
 
   // Prompt the user for a question
-  std::cout << "Enter a question: ";
   std::string question;
-  std::getline(std::cin, question);
-  //std::cout << "Your Question : " << question << std::endl;
+ if (argc > 1) {
+    // Use the first command-line argument as the question
+    question = argv[1];
+  } else {
+    std::cout << "Enter a question: ";
+    // Use cin as the default input source
+    std::getline(std::cin, question);
+  }
   // Set the request body to the user's question
-  std::string request_body = "{\"prompt\": [\"" + question + "\"]}";
+  std::string request_body = "{\"max_tokens\":1000,\"prompt\": [\"" + question + "\"]}";
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body.c_str());
 
   // Set the headers
   struct curl_slist *headers = nullptr;
   headers = curl_slist_append(headers, "Content-Type: application/json");
+	 for (const auto &header : header_string) {
+		headers = curl_slist_append(headers, header.c_str());
+	}
 
-  headers = curl_slist_append(headers, header_string.c_str());
+  //headers = curl_slist_append(headers, header_string.c_str());
   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
   // Set the callback function to handle the response
@@ -55,12 +63,13 @@ int main() {
     std::cerr << "Error making request: " << curl_easy_strerror(res) << std::endl;
     return 1;
   }
-
   // Parse the response
   nlohmann::json response_json = nlohmann::json::parse(response);
   std::string answer = response_json["choices"][0]["text"];
+
+  answer.erase(std::remove(answer.begin(), answer.end(), '\n'), answer.end());
   // Print the answer
-  std::cout << "Answer: " << answer << "\n";
+  std::cout << answer << std::endl;
   // Clean up
   curl_slist_free_all(headers);
   curl_easy_cleanup(curl);
