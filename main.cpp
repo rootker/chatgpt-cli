@@ -17,7 +17,7 @@ std::string API(const string& name){
   char* ApiKey = getenv(name.c_str());
   if (ApiKey == NULL) {
     //std::cerr << "Error: API_KEY environment variable is not set." << std::endl;
-	return std::string("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");
+	return std::string("YOUR_API_KEY");
   }
   return ApiKey;
 }
@@ -40,15 +40,14 @@ int main(int argc, char** argv) {
   // Prompt the user for a question
   std::string question;
  if (argc > 1) {
-    // Use the first command-line argument as the question
+    // use the first command-line argument as the question
     question = argv[1];
   } else {
-    std::cout << "Enter a question: ";
-    // Use cin as the default input source
+    std::cout << "enter a question: ";
+    // use cin as the default input source
     std::getline(std::cin, question);
   }
   // Set the request body to the user's question
-
   std::string request_body = "{\"max_tokens\":1000,\"prompt\": [\"" + question + "\"]}";
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body.c_str());
 
