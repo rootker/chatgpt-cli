@@ -10,4 +10,10 @@
 ```bash
 export API_KEY="YOUR_API_KEY_HERE"
 ```
-then move binary to /bin/ or in your local bin
+[Download](https://github.com/rootker/chatgpt-cli/releases/download/v1/openai) <br>
+```bash
+# add execute permission
+chmod +x openai
+# this optional
+mv openai ~/.local/bin
+```
