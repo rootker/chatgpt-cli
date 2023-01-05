@@ -13,10 +13,20 @@ size_t write_to_string(void *ptr, size_t size, size_t nmemb, void *stream) {
     response->append((char *) ptr, total_size);
     return total_size;
 }
+std::string API(const string& name){
+  char* ApiKey = getenv(name.c_str());
+  if (ApiKey == NULL) {
+    //std::cerr << "Error: API_KEY environment variable is not set." << std::endl;
+	return std::string("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");
+  }
+  return ApiKey;
+}
 int main(int argc, char** argv) {
   // Initialize CURL library
-	std::string ApiKey = "YOUR_API_KEY";
-	std::vector<std::string> header_string = { "Authorization: Bearer " + ApiKey,"max_tokens: 256"};
+	std::vector<std::string> header_string = { 
+		"Authorization: Bearer " + API("API_KEY"),
+		"max_tokens: 256"
+	};
   CURL *curl = curl_easy_init();
   if (!curl) {
     std::cerr << "Error initializing CURL library" << std::endl;
@@ -38,6 +48,7 @@ int main(int argc, char** argv) {
     std::getline(std::cin, question);
   }
   // Set the request body to the user's question
+
   std::string request_body = "{\"max_tokens\":1000,\"prompt\": [\"" + question + "\"]}";
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body.c_str());
 
